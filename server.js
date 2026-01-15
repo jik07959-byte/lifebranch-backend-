@@ -8,11 +8,11 @@ app.use(cors());
 app.use(express.json());
 
 const pool = mysql.createPool({
-  host: process.env.DB_HOST,
-  port: process.env.DB_PORT || 3306,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME
+  host: (process.env.DB_HOST || '').trim(),
+  port: parseInt((process.env.DB_PORT || '3306').trim()),
+  user: (process.env.DB_USER || '').trim(),
+  password: (process.env.DB_PASSWORD || '').trim(),
+  database: (process.env.DB_NAME || '').trim()
 });
 
 const codes = new Map();
