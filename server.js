@@ -68,5 +68,36 @@ app.get('/api/posts/:id/comments', async (req, res) => {
   } catch (e) { res.json({success: false, comments: []}); }
 });
 
+app.get('/api/health', async (req, res) => {
+  try {
+    const [rows] = await pool.query('SELECT COUNT(*) as count FROM posts');
+    res.json({
+      success: true,
+      dbConnected: true,
+      postsCount: rows[0].count,
+      env: {
+        DB_HOST: process.env.DB_HOST || 'NOT SET',
+        DB_PORT: process.env.DB_PORT || 'NOT SET',
+        DB_USER: process.env.DB_USER || 'NOT SET',
+        DB_NAME: process.env.DB_NAME || 'NOT SET',
+        DB_PASSWORD: process.env.DB_PASSWORD ? 'SET' : 'NOT SET'
+      }
+    });
+  } catch (e) {
+    res.json({
+      success: false,
+      dbConnected: false,
+      error: e.message,
+      env: {
+        DB_HOST: process.env.DB_HOST || 'NOT SET',
+        DB_PORT: process.env.DB_PORT || 'NOT SET',
+        DB_USER: process.env.DB_USER || 'NOT SET',
+        DB_NAME: process.env.DB_NAME || 'NOT SET',
+        DB_PASSWORD: process.env.DB_PASSWORD ? 'SET' : 'NOT SET'
+      }
+    });
+  }
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, '0.0.0.0', () => console.log('Server running on port ' + PORT));
