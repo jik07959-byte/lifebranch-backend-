@@ -49,7 +49,11 @@ app.post('/api/auth/login', async (req, res) => {
 
 function parseTags(tags) {
   if (!tags) return [];
-  try { return JSON.parse(tags); } catch { return tags.split(',').map(t => t.trim()); }
+  if (Array.isArray(tags)) return tags;
+  if (typeof tags === 'string') {
+    try { return JSON.parse(tags); } catch { return tags.split(',').map(t => t.trim()); }
+  }
+  return [];
 }
 
 app.get('/api/posts/recommended', async (req, res) => {
