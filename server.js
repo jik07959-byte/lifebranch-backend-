@@ -47,17 +47,22 @@ app.post('/api/auth/login', async (req, res) => {
   } catch (e) { console.error(e); res.json({success: false, message: 'Error'}); }
 });
 
+function parseTags(tags) {
+  if (!tags) return [];
+  try { return JSON.parse(tags); } catch { return tags.split(',').map(t => t.trim()); }
+}
+
 app.get('/api/posts/recommended', async (req, res) => {
   try {
     const [posts] = await pool.query('SELECT * FROM posts ORDER BY created_at DESC LIMIT 50');
-    res.json({success: true, posts: posts.map(p => ({id: p.id, authorNickname: p.author_nickname, title: p.title, content: p.content, category: p.category, tags: JSON.parse(p.tags || '[]'), likesCount: p.likes_count, commentsCount: 0, createdAt: p.created_at})), total: posts.length});
+    res.json({success: true, posts: posts.map(p => ({id: p.id, authorNickname: p.author_nickname, title: p.title, content: p.content, category: p.category, tags: parseTags(p.tags), likesCount: p.likes_count, commentsCount: 0, createdAt: p.created_at})), total: posts.length});
   } catch (e) { console.error(e); res.json({success: false, posts: [], error: e.message}); }
 });
 
 app.get('/api/posts/category/:cat', async (req, res) => {
   try {
     const [posts] = await pool.query('SELECT * FROM posts WHERE category=? ORDER BY created_at DESC', [req.params.cat]);
-    res.json({success: true, posts: posts.map(p => ({id: p.id, authorNickname: p.author_nickname, title: p.title, content: p.content, category: p.category, tags: JSON.parse(p.tags || '[]'), likesCount: p.likes_count, commentsCount: 0, createdAt: p.created_at})), total: posts.length});
+    res.json({success: true, posts: posts.map(p => ({id: p.id, authorNickname: p.author_nickname, title: p.title, content: p.content, category: p.category, tags: parseTags(p.tags), likesCount: p.likes_count, commentsCount: 0, createdAt: p.created_at})), total: posts.length});
   } catch (e) { console.error(e); res.json({success: false, posts: []}); }
 });
 
